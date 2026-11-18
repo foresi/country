@@ -6,10 +6,10 @@
 
 declare(strict_types=1);
 
-namespace Foresi\Country\CzechRepublic\ExchangeRate;
+namespace Foresi\Country\Integration\ExchangeRate\CzechRepublic;
 
-use Foresi\ExchangeRate\Application\PublishedRates;
-use Foresi\ExchangeRate\Application\Quote;
+use Foresi\ExchangeRate\Contract\PublishedRates;
+use Foresi\ExchangeRate\Contract\Quote;
 
 /**
  * Reads the daily fix file of the ČNB: a first line with the date and the number

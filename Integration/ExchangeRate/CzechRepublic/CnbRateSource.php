@@ -6,10 +6,10 @@
 
 declare(strict_types=1);
 
-namespace Foresi\Country\CzechRepublic\ExchangeRate;
+namespace Foresi\Country\Integration\ExchangeRate\CzechRepublic;
 
-use Foresi\ExchangeRate\Application\PublishedRates;
-use Foresi\ExchangeRate\Application\RateSource;
+use Foresi\ExchangeRate\Contract\PublishedRates;
+use Foresi\ExchangeRate\Contract\RateSource;
 use Foresi\Shared\Infrastructure\Registry\PublicRegistryClient;
 
 /**

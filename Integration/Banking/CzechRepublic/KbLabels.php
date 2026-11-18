@@ -6,9 +6,9 @@
 
 declare(strict_types=1);
 
-namespace Foresi\Country\CzechRepublic\Banking;
+namespace Foresi\Country\Integration\Banking\CzechRepublic;
 
-use Foresi\Banking\Domain\MovementDirection;
+use Foresi\Banking\Contract\MovementDirection;
 
 /**
  * The words of a Komerční banka payment notice. Each notice states every payment

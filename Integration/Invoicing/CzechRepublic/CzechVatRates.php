@@ -6,10 +6,10 @@
 
 declare(strict_types=1);
 
-namespace Foresi\Country\CzechRepublic\Invoicing;
+namespace Foresi\Country\Integration\Invoicing\CzechRepublic;
 
-use Foresi\Invoicing\Domain\Percent;
-use Foresi\Invoicing\Domain\VatRateKind;
+use Foresi\Invoicing\Contract\Percent;
+use Foresi\Invoicing\Contract\VatRateKind;
 
 /**
  * The Czech VAT rates as dated rows, after § 47 of the VAT Act (235/2004 Coll.,

@@ -6,16 +6,16 @@
 
 declare(strict_types=1);
 
-namespace Foresi\Country\CzechRepublic\Banking;
+namespace Foresi\Country\Integration\Banking\CzechRepublic;
 
-use Foresi\Banking\Application\BankMessageParser;
-use Foresi\Banking\Application\InboundMail;
-use Foresi\Banking\Application\NotificationLines;
-use Foresi\Banking\Application\ParsedMovement;
-use Foresi\Banking\Application\ParseFailed;
-use Foresi\Banking\Application\ParseFailure;
-use Foresi\Banking\Application\ParseResult;
-use Foresi\Banking\Domain\MovementDirection;
+use Foresi\Banking\Contract\BankMessageParser;
+use Foresi\Banking\Contract\InboundMail;
+use Foresi\Banking\Contract\MovementDirection;
+use Foresi\Banking\Contract\NotificationLines;
+use Foresi\Banking\Contract\ParsedMovement;
+use Foresi\Banking\Contract\ParseFailed;
+use Foresi\Banking\Contract\ParseFailure;
+use Foresi\Banking\Contract\ParseResult;
 use Foresi\Country\CzechRepublic\Party\CzechBankAccount;
 use Foresi\Party\Domain\Iban;
 use Foresi\Party\Domain\InvalidIban;

@@ -6,14 +6,14 @@
 
 declare(strict_types=1);
 
-namespace Foresi\Country\CzechRepublic\Invoicing;
+namespace Foresi\Country\Integration\Invoicing\CzechRepublic;
 
-use Foresi\Invoicing\Application\IssuedDocument;
-use Foresi\Invoicing\Domain\Percent;
-use Foresi\Invoicing\Domain\RateSummary;
-use Foresi\Invoicing\Domain\TaxTreatment;
-use Foresi\Invoicing\Domain\VatRateKind;
-use Foresi\Invoicing\Domain\VatRegime;
+use Foresi\Invoicing\Contract\IssuedDocument;
+use Foresi\Invoicing\Contract\Percent;
+use Foresi\Invoicing\Contract\RateSummary;
+use Foresi\Invoicing\Contract\TaxTreatment;
+use Foresi\Invoicing\Contract\VatRateKind;
+use Foresi\Invoicing\Contract\VatRegime;
 use Foresi\Party\Domain\PaymentMethod;
 use Foresi\Shared\Domain\Currency;
 use Foresi\Shared\Domain\Money;

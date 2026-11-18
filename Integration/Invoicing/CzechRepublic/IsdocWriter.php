@@ -6,26 +6,27 @@
 
 declare(strict_types=1);
 
-namespace Foresi\Country\CzechRepublic\Invoicing;
+namespace Foresi\Country\Integration\Invoicing\CzechRepublic;
 
 use Foresi\Country\CzechRepublic\Party\CzechBankAccount;
 use Foresi\Country\CzechRepublic\Party\CzechBanks;
-use Foresi\Invoicing\Application\CorrectedDocument;
-use Foresi\Invoicing\Application\IssuedDocument;
-use Foresi\Invoicing\Domain\DocumentKind;
-use Foresi\Invoicing\Domain\DocumentParty;
-use Foresi\Invoicing\Domain\InvoiceCalculator;
-use Foresi\Invoicing\Domain\InvoiceLine;
-use Foresi\Invoicing\Domain\LineAmounts;
-use Foresi\Invoicing\Domain\PriceType;
-use Foresi\Invoicing\Domain\Quantity;
-use Foresi\Invoicing\Domain\RateSummary;
-use Foresi\Invoicing\Domain\SummaryLine;
-use Foresi\Invoicing\Domain\TaxTreatment;
-use Foresi\Invoicing\Domain\VatRegime;
+use Foresi\Invoicing\Contract\CorrectedDocument;
+use Foresi\Invoicing\Contract\DocumentKind;
+use Foresi\Invoicing\Contract\DocumentLine;
+use Foresi\Invoicing\Contract\DocumentParty;
+use Foresi\Invoicing\Contract\IssuedDocument;
+use Foresi\Invoicing\Contract\LineAmounts;
+use Foresi\Invoicing\Contract\Percent;
+use Foresi\Invoicing\Contract\PriceType;
+use Foresi\Invoicing\Contract\Quantity;
+use Foresi\Invoicing\Contract\RateSummary;
+use Foresi\Invoicing\Contract\SummaryLine;
+use Foresi\Invoicing\Contract\TaxTreatment;
+use Foresi\Invoicing\Contract\VatRegime;
 use Foresi\Party\Domain\PaymentMethod;
 use Foresi\Shared\Domain\Countries;
 use Foresi\Shared\Domain\Money;
+use Symfony\Component\DependencyInjection\Attribute\Autowire;
 
 /**
  * Writes an issued document as ISDOC 6.0.2 (isdoc.cz). The amounts are the stored
@@ -61,8 +62,10 @@ final readonly class IsdocWriter
     /** Everything XML 1.0 allows; anything else in a text would leave the file unreadable. */
     private const string NOT_XML = '/[^\x{9}\x{A}\x{D}\x{20}-\x{D7FF}\x{E000}-\x{FFFD}\x{10000}-\x{10FFFF}]/u';
 
-    public function __construct(private string $issuingSystem = 'Foresi')
-    {
+    public function __construct(
+        #[Autowire(param: 'country.isdoc_issuing_system')]
+        private string $issuingSystem = 'Foresi',
+    ) {
     }
 
     public function write(IssuedDocument $document): string
@@ -105,7 +108,7 @@ final readonly class IsdocWriter
         $this->originalDocument($root, $document);
 
         // Deducted advances are deposits in ISDOC, not lines: the lines are the supply (§A.6, §A.9).
-        $supply = array_values(array_filter($document->lines, static fn (InvoiceLine $line): bool => null === $line->deducts()));
+        $supply = array_values(array_filter($document->lines, static fn (DocumentLine $line): bool => null === $line->deducts()));
         $lines = $this->add($root, 'InvoiceLines');
         foreach ($supply as $index => $line) {
             $this->line($lines, $line, $index + 1, $applicable, DocumentKind::CorrectionDocument === $document->kind, $sign);
@@ -159,7 +162,7 @@ final readonly class IsdocWriter
 
     private function isVatApplicable(IssuedDocument $document): bool
     {
-        return array_any($document->lines, static fn (InvoiceLine $line): bool => !$line->vat()->isZero());
+        return array_any($document->lines, static fn (DocumentLine $line): bool => !$line->vat()->isZero());
     }
 
     /**
@@ -168,7 +171,7 @@ final readonly class IsdocWriter
     private function note(IssuedDocument $document): string
     {
         $parts = [$document->textBefore, $document->description, $document->textAfter];
-        if (array_any($document->lines, static fn (InvoiceLine $line): bool => TaxTreatment::ReverseCharge === $line->treatment())) {
+        if (array_any($document->lines, static fn (DocumentLine $line): bool => TaxTreatment::ReverseCharge === $line->treatment())) {
             $parts[] = self::REVERSE_CHARGE_WORDS;
         }
 
@@ -224,7 +227,7 @@ final readonly class IsdocWriter
      * @param bool $correction a corrective document writes its quantities positive and its unit prices signed
      * @param int  $sign       -1 for a credit note and a correction of a tax document on payment (§A.6)
      */
-    private function line(\DOMElement $parent, InvoiceLine $line, int $number, bool $documentApplicable, bool $correction, int $sign): void
+    private function line(\DOMElement $parent, DocumentLine $line, int $number, bool $documentApplicable, bool $correction, int $sign): void
     {
         $element = $this->add($parent, 'InvoiceLine');
         $this->add($element, 'ID', (string) $number);
@@ -243,7 +246,7 @@ final readonly class IsdocWriter
         $category = $this->add($element, 'ClassifiedTaxCategory');
         $this->add($category, 'Percent', $line->rate()?->decimal() ?? '0.00');
         $this->add($category, 'VATCalculationMethod', PriceType::WithVat === $line->priceType() ? '1' : '0');
-        $this->add($category, 'VATApplicable', $this->flag($documentApplicable && $line->rate() instanceof \Foresi\Invoicing\Domain\Percent));
+        $this->add($category, 'VATApplicable', $this->flag($documentApplicable && $line->rate() instanceof Percent));
         $code = $line->supplyCode();
         if (null !== $code) {
             $this->add($this->add($category, 'LocalReverseCharge'), 'LocalReverseChargeCode', $code);
@@ -258,12 +261,12 @@ final readonly class IsdocWriter
         $this->add($this->add($element, 'Item'), 'Description', $line->text());
     }
 
-    private function unitGross(InvoiceLine $line): Money
+    private function unitGross(DocumentLine $line): Money
     {
         return $line->quantity()->isZero() ? $line->unitNet() : $line->gross()->dividedBy($line->quantity()->toDecimal());
     }
 
-    private function percent(InvoiceLine $line): string
+    private function percent(DocumentLine $line): string
     {
         return rtrim(rtrim($line->discount()->decimal(), '0'), '.');
     }
@@ -320,12 +323,12 @@ final readonly class IsdocWriter
      * Per rate: the supply, what the tax documents on payments claimed already, and
      * the difference on which VAT is due now (§37a).
      *
-     * @param list<InvoiceLine> $supply
+     * @param list<DocumentLine> $supply
      */
     private function taxTotal(\DOMElement $root, IssuedDocument $document, array $supply, int $sign): void
     {
         $total = $this->add($root, 'TaxTotal');
-        $domestic = array_any($document->lines, static fn (InvoiceLine $line): bool => null !== $line->supplyCode());
+        $domestic = array_any($document->lines, static fn (DocumentLine $line): bool => null !== $line->supplyCode());
         $applicable = $this->isVatApplicable($document);
         $zero = Money::ofMinor(0, $document->currency);
         $claimed = [];
@@ -367,7 +370,7 @@ final readonly class IsdocWriter
 
         $category = $this->add($element, 'TaxCategory');
         $this->add($category, 'Percent', $summary->rate?->decimal() ?? $zero);
-        $this->add($category, 'VATApplicable', $this->flag($documentApplicable && $summary->rate instanceof \Foresi\Invoicing\Domain\Percent));
+        $this->add($category, 'VATApplicable', $this->flag($documentApplicable && $summary->rate instanceof Percent));
         if ($domesticReverseCharge && TaxTreatment::ReverseCharge === $summary->treatment) {
             $this->add($category, 'LocalReverseChargeFlag', 'true');
         }
@@ -376,7 +379,7 @@ final readonly class IsdocWriter
     /**
      * DifferenceTaxInclusiveAmount + PayableRoundingAmount - PaidDepositsAmount = PayableAmount (§A.6 b).
      *
-     * @param list<InvoiceLine> $supply
+     * @param list<DocumentLine> $supply
      */
     private function monetaryTotal(\DOMElement $root, IssuedDocument $document, array $supply, int $sign): void
     {
@@ -386,7 +389,7 @@ final readonly class IsdocWriter
         $claimedGross = $this->negated($this->sum($taxed, 'gross', $document));
         $supplyNet = $this->signed($this->sum($supply, 'net', $document), $sign);
         $supplyGross = $this->signed($this->sum($supply, 'gross', $document), $sign);
-        $untaxed = array_values(array_filter($document->lines, static fn (InvoiceLine $line): bool => null !== $line->deducts() && !($document->deposits[$line->deducts()]['taxed'] ?? false)));
+        $untaxed = array_values(array_filter($document->lines, static fn (DocumentLine $line): bool => null !== $line->deducts() && !($document->deposits[$line->deducts()]['taxed'] ?? false)));
         $this->add($total, 'TaxExclusiveAmount', $this->amount($supplyNet));
         $this->add($total, 'TaxInclusiveAmount', $this->amount($supplyGross));
         $this->add($total, 'AlreadyClaimedTaxExclusiveAmount', $this->amount($claimedNet));
@@ -399,21 +402,21 @@ final readonly class IsdocWriter
     }
 
     /**
-     * @return list<InvoiceLine> the lines that deduct a tax document on payment
+     * @return list<DocumentLine> the lines that deduct a tax document on payment
      */
     private function taxedDeductions(IssuedDocument $document): array
     {
-        return array_values(array_filter($document->lines, static fn (InvoiceLine $line): bool => null !== $line->deducts() && ($document->deposits[$line->deducts()]['taxed'] ?? false)));
+        return array_values(array_filter($document->lines, static fn (DocumentLine $line): bool => null !== $line->deducts() && ($document->deposits[$line->deducts()]['taxed'] ?? false)));
     }
 
     /**
-     * @param list<InvoiceLine> $lines
+     * @param list<DocumentLine> $lines
      *
      * @return list<RateSummary>
      */
     private function summaries(array $lines, Money $zero): array
     {
-        return new InvoiceCalculator()->summaries(array_map(static fn (InvoiceLine $line): SummaryLine => new SummaryLine($line->treatment(), $line->rate(), new LineAmounts($line->unitNet(), $line->net(), $line->vat(), $line->gross())), $lines), $zero);
+        return RateSummary::of(array_map(static fn (DocumentLine $line): SummaryLine => new SummaryLine($line->treatment(), $line->rate(), new LineAmounts($line->unitNet(), $line->net(), $line->vat(), $line->gross())), $lines), $zero);
     }
 
     private function key(RateSummary $summary): string
@@ -422,8 +425,8 @@ final readonly class IsdocWriter
     }
 
     /**
-     * @param list<InvoiceLine> $lines
-     * @param 'net'|'gross'     $amount
+     * @param list<DocumentLine> $lines
+     * @param 'net'|'gross'      $amount
      */
     private function sum(array $lines, string $amount, IssuedDocument $document): Money
     {

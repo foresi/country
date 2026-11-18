@@ -6,9 +6,9 @@
 
 declare(strict_types=1);
 
-namespace Foresi\Country\CzechRepublic\Invoicing;
+namespace Foresi\Country\Integration\Invoicing\CzechRepublic;
 
-use Foresi\Invoicing\Application\SupplyCode;
+use Foresi\Invoicing\Contract\SupplyCode;
 
 /**
  * The codes of the supplies taxed by the customer, as the instructions for the
