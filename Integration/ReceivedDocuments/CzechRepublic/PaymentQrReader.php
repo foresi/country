@@ -6,17 +6,17 @@
 
 declare(strict_types=1);
 
-namespace Foresi\Country\Integration\Purchasing\CzechRepublic;
+namespace Foresi\Country\Integration\ReceivedDocuments\CzechRepublic;
 
 use chillerlan\QRCode\Common\GDLuminanceSource;
 use chillerlan\QRCode\QRCode;
 use chillerlan\QRCode\QRCodeException;
 use chillerlan\QRCode\QROptions;
-use Foresi\Purchasing\Contract\Reading\DocumentFile;
-use Foresi\Purchasing\Contract\Reading\DocumentReader;
-use Foresi\Purchasing\Contract\Reading\PdfFiles;
-use Foresi\Purchasing\Contract\Reading\ReaderFailed;
-use Foresi\Purchasing\Contract\Reading\Reading;
+use Foresi\ReceivedDocuments\Contract\Reading\DocumentFile;
+use Foresi\ReceivedDocuments\Contract\Reading\DocumentReader;
+use Foresi\ReceivedDocuments\Contract\Reading\PdfFiles;
+use Foresi\ReceivedDocuments\Contract\Reading\ReaderFailed;
+use Foresi\ReceivedDocuments\Contract\Reading\Reading;
 use Symfony\Component\DependencyInjection\Attribute\AsTaggedItem;
 
 /**
@@ -26,7 +26,7 @@ use Symfony\Component\DependencyInjection\Attribute\AsTaggedItem;
  * It decodes the images stored in a PDF (see PdfFiles). A code drawn with
  * vectors, as the PDF of an invoice system often has it, is not read.
  *
- * The priority is the reader order: the tag `foresi.purchasing.document_reader`
+ * The priority is the reader order: the tag `foresi.received_documents.document_reader`
  * comes from the autoconfiguration of DocumentReader, and AsTaggedItem sets the
  * priority on it without a second tag.
  */

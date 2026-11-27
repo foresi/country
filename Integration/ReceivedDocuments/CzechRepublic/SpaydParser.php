@@ -6,11 +6,11 @@
 
 declare(strict_types=1);
 
-namespace Foresi\Country\Integration\Purchasing\CzechRepublic;
+namespace Foresi\Country\Integration\ReceivedDocuments\CzechRepublic;
 
-use Foresi\Purchasing\Contract\Reading\ReadField;
-use Foresi\Purchasing\Contract\Reading\Reading;
-use Foresi\Purchasing\Contract\Reading\ReadValue;
+use Foresi\ReceivedDocuments\Contract\Reading\ReadField;
+use Foresi\ReceivedDocuments\Contract\Reading\Reading;
+use Foresi\ReceivedDocuments\Contract\Reading\ReadValue;
 
 /**
  * Reads the Czech short payment descriptor (SPD, "SPAYD") that a QR payment

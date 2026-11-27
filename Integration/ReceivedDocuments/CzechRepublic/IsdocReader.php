@@ -6,17 +6,17 @@
 
 declare(strict_types=1);
 
-namespace Foresi\Country\Integration\Purchasing\CzechRepublic;
+namespace Foresi\Country\Integration\ReceivedDocuments\CzechRepublic;
 
-use Foresi\Purchasing\Contract\Reading\DocumentFile;
-use Foresi\Purchasing\Contract\Reading\DocumentReader;
-use Foresi\Purchasing\Contract\Reading\PdfFiles;
-use Foresi\Purchasing\Contract\Reading\ReaderFailed;
-use Foresi\Purchasing\Contract\Reading\ReadField;
-use Foresi\Purchasing\Contract\Reading\ReadFormat;
-use Foresi\Purchasing\Contract\Reading\Reading;
-use Foresi\Purchasing\Contract\Reading\ReadValue;
-use Foresi\Purchasing\Contract\Reading\SafeXml;
+use Foresi\ReceivedDocuments\Contract\Reading\DocumentFile;
+use Foresi\ReceivedDocuments\Contract\Reading\DocumentReader;
+use Foresi\ReceivedDocuments\Contract\Reading\PdfFiles;
+use Foresi\ReceivedDocuments\Contract\Reading\ReaderFailed;
+use Foresi\ReceivedDocuments\Contract\Reading\ReadField;
+use Foresi\ReceivedDocuments\Contract\Reading\ReadFormat;
+use Foresi\ReceivedDocuments\Contract\Reading\Reading;
+use Foresi\ReceivedDocuments\Contract\Reading\ReadValue;
+use Foresi\ReceivedDocuments\Contract\Reading\SafeXml;
 use Symfony\Component\DependencyInjection\Attribute\AsTaggedItem;
 
 /**
